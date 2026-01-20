@@ -9,14 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const route = express.Router();
 
-// route.get("/SignIn", (req, res) => {
 
-//     res.render("SignIn")
-// })
-// route.get("/SignUp", (req, res) => {
-
-//     res.render("SignUp")
-// })
 
 route.post("/LogIn", async (req, res) => {
   try {
@@ -37,6 +30,7 @@ route.post("/LogIn", async (req, res) => {
 
     const payload={
 
+        _id: dbUser._id,
         name:dbUser.name,
         email:dbUser.email,
         mobileNo:dbUser.mobileNo,
@@ -45,15 +39,8 @@ route.post("/LogIn", async (req, res) => {
 
     const token=jwt.sign(payload,JWT_SECRET);
 
-    res.cookie("token",token,{
 
-    maxAge:360000,
-    httpOnly:true,
-    secure:false,
-
-   })
-
-    return res.status(200).json({ success: true, message: "Authorized User" });
+    return res.status(200).json({ success: true, token:token,message: "Authorized User" ,User:dbUser});
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -69,6 +56,7 @@ route.post("/SignUp", async (req, res) => {
 try{
   const { name, email, mobileNo, password } = req.body;
 
+  console.log(req.body)
 
   if (!name || !email || !mobileNo || !password) {
       return res.status(400).json({
@@ -82,7 +70,7 @@ try{
       return res.status(409).json({ error: "User already exists" });
     }
 
-  const Salt = await crypto.randomBytes(10).toString("hex");
+  const Salt = 10;
   const hashedPassword = await bcrypt.hash(password, Salt);
 
   const newUser = await User.create({
@@ -108,12 +96,9 @@ try{
   }
 });
 
-route.post("/LogOut",async (req,res)=>{
+route.post("/Logout",async (req,res)=>{
 
-    res.clearCookie("token",{    
-       httpOnly: true,
-       secure: false,
-    })
+    
 
     res.status(200).json({
     success: true,

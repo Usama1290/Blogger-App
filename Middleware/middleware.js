@@ -4,17 +4,20 @@ const JWT_SECRET = 'MySecretKey';
 async function authentication(req, res, next) {
 
    try {
-    const token = req.cookies?.token;
+    
+    const header = req.headers.token;
 
-    if (!token) {
+    if (!header) {
       return res.status(401).json({
         success: false,
         message: "Access denied."
       });
     }
-
+    const token = header.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
+
+    console.log("AUTH USER:", req.user);
 
     next();
   } catch (err) {
@@ -27,4 +30,4 @@ async function authentication(req, res, next) {
 
 
 
-module.exports = authentication;
+module.exports = {authentication};
