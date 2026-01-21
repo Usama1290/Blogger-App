@@ -15,10 +15,16 @@ const BlogUserSchema = new mongoose.Schema(
       require: true,
       unique: true,
     },
+    dob:{
+        type:Date,
+        require:true,
+
+    },
     password: {
       type: String,
       require: true,
     },
+   
   },
   { timestamps: true }
 );
