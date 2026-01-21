@@ -4,7 +4,7 @@ const JWT_SECRET = 'MySecretKey';
 async function authentication(req, res, next) {
 
    try {
-    
+
     const header = req.headers.token;
 
     if (!header) {

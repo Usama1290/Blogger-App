@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const JWT_SECRET = 'MySecretKey';
 const jwt = require('jsonwebtoken');
+const {authentication}=require("../Middleware/middleware")
 
 
 
@@ -99,6 +100,7 @@ try{
       mobileNo: newUser.mobileNo,
       dob:newUser.dob,
       password: hashedPassword,
+      confirmPassword:confirmPassword
     },
     message:"User Register Successfully ",
    
@@ -125,24 +127,51 @@ route.post("/Logout",async (req,res)=>{
 
 /////            PROFILE API         /////////
 
-route.get("/profile",async (req,res)=>{
+route.get("/profile",authentication,async (req,res)=>{
 
    try {
-      const user = await User.findById(req.params.id)
+      const user = await User.findById(req.user._id)
+      console.log(user)
       if (!user) {
-        return res.status(400).json({ message: "Blog not Found" });
+        return res.status(400).json({ message: "User not Found" });
       }
   
       res.status(200).json({
         success: true,
-        user: user,
+        User: user,
       });
     } catch (error) {
-      res.status(500).json({ message: "Server Error" });
+      res.status(500).json({ message: "profile get Server Error" });
     }
 
-
 })
+
+
+
+route.post("/profile", authentication, async (req, res) => {
+  try {
+    const { name, email, dob, password } = req.body;
+    console.log(req.body)
+
+    const updateData = { name, email, dob };
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      updateData,
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    res.json({ message: "Profile updated successfully", User: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: "profile update Server error" });
+  }
+});
+
 
 module.exports = route;
 

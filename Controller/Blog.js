@@ -35,7 +35,7 @@ router.get("/", authentication, async (req, res) => {
                                                                                                                        
     console.log("Filter being used:", filter);
     const allblog = await Blog.find(filter).populate("CreatedBy", "name");
-    res.status(200).json({ success: true, user: req.user, blog: allblog });
+    res.status(200).json({ success: true, User: req.user, blog: allblog });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -80,6 +80,7 @@ router.post(
     return res.status(201).json({
       success: true,
       blog: newblog,
+      message:"Blog is updated"
     });
   }
 );
@@ -96,6 +97,7 @@ router.delete("/:id", async (req, res) => {
     return res.status(200).json({
       success: true,
       blog: blog,
+      message:"Blog is deleted"
     });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -138,6 +140,7 @@ router.put("/:id",authentication,
     return res.status(200).json({
       success: true,
       blog: blog,
+      message:"Blog is created"
     });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });

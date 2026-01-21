@@ -26,7 +26,7 @@ const BlogUserSchema = new mongoose.Schema(
     },
    
   },
-  { timestamps: true }
+  
 );
 
 const BlogUser = mongoose.model("BUser", BlogUserSchema);
