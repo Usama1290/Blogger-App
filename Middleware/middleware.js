@@ -13,6 +13,7 @@ async function authentication(req, res, next) {
         message: "Access denied."
       });
     }
+   
     const token = header.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;

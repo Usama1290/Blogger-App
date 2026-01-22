@@ -25,8 +25,8 @@ const app =express();
 
 app.use(cors())
 //app.use(cors({  origin: 'http://localhost:4200', methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  allowedHeaders: ['Content-Type', 'Authorization'],  credentials: true}));
-app.use(express.urlencoded({extended:true}));
-app.use(express.json());
+app.use(express.urlencoded({limit: '10mb',extended:true}));
+app.use(express.json({ limit: '10mb' }));
 app.use((req, res, next) => {
   req.url = req.url.trim(); // remove trailing whitespace/newline
   next();

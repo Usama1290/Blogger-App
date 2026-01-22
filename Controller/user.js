@@ -161,11 +161,15 @@ route.put("/profile", authentication, async (req, res) => {
       updateData.password = hashedPassword;
     }
 
+
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       updateData,
       { new: true, runValidators: true }
     ).select("-password");
+
+    console.log(updatedUser)
 
     res.json({ message: "Profile updated successfully", User: updatedUser });
   } catch (error) {

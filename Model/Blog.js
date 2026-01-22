@@ -21,7 +21,7 @@ const blogSchema=new mongoose.Schema({
     Category:{
 
         type:String,
-        enum: ["Cars", "Movies", "Sports", "fashion","News","Pets"], 
+        enum: ["CARS", "MOVIES", "SPORTS", "fASHION","NEWS","PETS"], 
         default: "Other"
 
     },
