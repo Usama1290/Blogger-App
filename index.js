@@ -27,6 +27,10 @@ app.use(cors())
 //app.use(cors({  origin: 'http://localhost:4200', methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  allowedHeaders: ['Content-Type', 'Authorization'],  credentials: true}));
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
+app.use((req, res, next) => {
+  req.url = req.url.trim(); // remove trailing whitespace/newline
+  next();
+});
 app.use(cookieParser());
 app.use(express.static(path.resolve("./BlogImages")))
 

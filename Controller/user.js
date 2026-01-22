@@ -6,10 +6,7 @@ const JWT_SECRET = 'MySecretKey';
 const jwt = require('jsonwebtoken');
 const {authentication}=require("../Middleware/middleware")
 
-
-
 const route = express.Router();
-
 
 /////            LOGIN API         /////////
 route.post("/LogIn", async (req, res) => {
@@ -40,7 +37,6 @@ route.post("/LogIn", async (req, res) => {
 
     const token=jwt.sign(payload,JWT_SECRET);
 
-
     return res.status(200).json({ success: true, token:token,message: "Authorized User" ,User:{
       name: dbUser.name,
       email: dbUser.email,
@@ -50,8 +46,6 @@ route.post("/LogIn", async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
-
-
 
 /////            SIGNUP API         /////////
 
@@ -64,7 +58,6 @@ try{
 
     return res.status(400).json({ message: "Passwords do not match" });
   }
-  
 
   console.log(req.body)
 
@@ -73,7 +66,6 @@ try{
         message: "All fields are required"
       });
     }
-
 
   const FindUser = await User.findOne({ email });
     if (FindUser) {
@@ -90,7 +82,6 @@ try{
     dob,
     password: hashedPassword,
   });
-  
 
   return res.status(201).json({
     success: true,
@@ -103,8 +94,7 @@ try{
       confirmPassword:confirmPassword
     },
     message:"User Register Successfully ",
-   
-    
+
   });
 
   } catch (error) {
@@ -115,15 +105,12 @@ try{
 
 route.post("/Logout",async (req,res)=>{
 
-
     res.status(200).json({
     success: true,
     message: "Logged out successfully"
     });
 
-
 })
-
 
 /////            PROFILE API         /////////
 
@@ -135,7 +122,7 @@ route.get("/profile",authentication,async (req,res)=>{
       if (!user) {
         return res.status(400).json({ message: "User not Found" });
       }
-  
+
       res.status(200).json({
         success: true,
         User: user,
@@ -146,14 +133,28 @@ route.get("/profile",authentication,async (req,res)=>{
 
 })
 
-
-
-route.post("/profile", authentication, async (req, res) => {
+route.put("/profile", authentication, async (req, res) => {
   try {
     const { name, email, dob, password } = req.body;
     console.log(req.body)
 
-    const updateData = { name, email, dob };
+
+    const updateData={};
+    if(name){
+      updateData.name=name;
+
+    }
+    if(email){
+      updateData.email=email
+
+    }
+    if(dob){
+
+      updateData.dob=dob
+
+    }
+
+    
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -161,7 +162,7 @@ route.post("/profile", authentication, async (req, res) => {
     }
 
     const updatedUser = await User.findByIdAndUpdate(
-      req.userId,
+      req.user._id,
       updateData,
       { new: true, runValidators: true }
     ).select("-password");
@@ -172,7 +173,5 @@ route.post("/profile", authentication, async (req, res) => {
   }
 });
 
-
 module.exports = route;
-
 

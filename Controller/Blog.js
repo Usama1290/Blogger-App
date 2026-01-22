@@ -22,8 +22,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 //get all blog or blog by category
-router.get("/", authentication, async (req, res) => {
+router.get("/",authentication, async (req, res) => {
   try {
+    console.log("get blog hit")
     const  Category  = req.query.Category;
     console.log(Category)
 
@@ -34,11 +35,17 @@ router.get("/", authentication, async (req, res) => {
     }
                                                                                                                        
     console.log("Filter being used:", filter);
-    const allblog = await Blog.find(filter).populate("CreatedBy", "name");
-    res.status(200).json({ success: true, User: req.user, blog: allblog });
+    const allblog = await Blog.find(filter).populate({
+  path: "CreatedBy",
+  select: "name",
+  options: { strictPopulate: false }
+});
+   
+    res.status(200).json({ success: true, blog: allblog});
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
-  }
+  console.log("GET BLOG ERROR:", error);
+  res.status(500).json({ message: error.message });
+}
 });
 
 //Get for open specific blog
@@ -57,7 +64,7 @@ router.get("/:id", authentication, async (req, res) => {
       blog: blog,
     });
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({ message: "get by id Server Error" });
   }
 });
 
@@ -80,14 +87,14 @@ router.post(
     return res.status(201).json({
       success: true,
       blog: newblog,
-      message:"Blog is updated"
+      message:"Blog is made successfully"
     });
   }
 );
 
 //delete blog
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",authentication, async (req, res) => {
   try {
     const id = req.params.id;
     const blog = await Blog.findByIdAndDelete(id);
@@ -100,7 +107,7 @@ router.delete("/:id", async (req, res) => {
       message:"Blog is deleted"
     });
   } catch (error) {
-    res.status(500).json({ message: "Server Error" });
+    res.status(500).json({ message: "Delete Server Error" });
   }
 });
 
