@@ -72,10 +72,12 @@ router.get("/:id", authentication, async (req, res) => {
 router.post(
   "/createBlog",
   authentication,
-  upload.single("BlogImages"),
+  upload.single("BlogImageUrl"),
   async (req, res) => {
     const { Title, Description, Category } = req.body;
-
+     
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
     const newblog = await Blog.create({
       Title,
       Description,
@@ -113,7 +115,7 @@ router.delete("/:id",authentication, async (req, res) => {
 
 //update blog
 router.put("/:id",authentication,
-  upload.single("BlogImages"), async (req, res) => {
+  upload.single("BlogImageUrl"), async (req, res) => {
   try {
     const id = req.params.id;
     console.log(id)
