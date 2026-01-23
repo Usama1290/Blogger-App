@@ -32,7 +32,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(cookieParser());
-app.use(express.static(path.resolve("./BlogImages")))
+app.use('/BlogImages', express.static(path.join(__dirname, 'BlogImages')));
 
 
 app.use("/user",userRoutes)
