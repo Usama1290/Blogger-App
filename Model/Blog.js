@@ -21,14 +21,19 @@ const blogSchema=new mongoose.Schema({
     Category:{
 
         type:String,
-        enum: ["CARS", "MOVIES", "SPORTS", "fASHION","NEWS","PETS"], 
-        default: "Other"
+        enum: ['CARS', 'MOVIES', 'SPORTS', 'fASHION','NEWS','PETS'], 
+        default: 'Other',
+        require:true,
+
 
     },
     CreatedBy:{
+        
+       type:String,
+       require:true,
 
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"BUser",
+       // type:mongoose.Schema.Types.ObjectId,
+       // ref:"BUser",
         
     },
     

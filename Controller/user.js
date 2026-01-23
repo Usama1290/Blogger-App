@@ -4,7 +4,8 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const JWT_SECRET = 'MySecretKey';
 const jwt = require('jsonwebtoken');
-const {authentication}=require("../Middleware/middleware")
+const {authentication}=require("../Middleware/middleware");
+const optverification=require("../Model/OtpVerification")
 
 const route = express.Router();
 
@@ -103,6 +104,8 @@ try{
   }
 });
 
+/////////////// Logout ///////////////////
+
 route.post("/Logout",async (req,res)=>{
 
     res.status(200).json({
@@ -138,7 +141,6 @@ route.put("/profile", authentication, async (req, res) => {
     const { name, email, dob, password } = req.body;
     console.log(req.body)
 
-
     const updateData={};
     if(name){
       updateData.name=name;
@@ -154,7 +156,6 @@ route.put("/profile", authentication, async (req, res) => {
 
     }
 
-    
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -176,6 +177,26 @@ route.put("/profile", authentication, async (req, res) => {
     res.status(500).json({ message: "profile update Server error" });
   }
 });
+
+/////////////////// OTP verification /////////////////////
+
+route.put("",(req,res)=>{
+
+  try {
+
+    otp=Math.floor(1000+Math.random()*9000);
+
+
+    
+  } catch (error) {
+    
+  }
+
+
+  
+
+
+})
 
 module.exports = route;
 

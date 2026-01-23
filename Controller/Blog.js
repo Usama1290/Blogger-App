@@ -33,11 +33,7 @@ router.get("/", authentication, async (req, res) => {
     }
 
     console.log("Filter being used:", filter);
-    const allblog = await Blog.find(filter).populate({
-      path: "CreatedBy",
-      select: "name",
-      options: { strictPopulate: false },
-    });
+    const allblog = await Blog.find(filter)
 
     if (allblog.length === 0) {
       return res.status(200).json({
@@ -57,10 +53,8 @@ router.get("/", authentication, async (req, res) => {
 //Get for open specific blog
 router.get("/:id", authentication, async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id).populate(
-      "CreatedBy",
-      "name"
-    );
+    const blog = await Blog.findById(req.params.id)
+
     if (!blog) {
       return res.status(400).json({ message: "Blog not Found" });
     }
@@ -69,6 +63,7 @@ router.get("/:id", authentication, async (req, res) => {
       success: true,
       blog: blog,
     });
+
   } catch (error) {
     res.status(500).json({ message: "get by id Server Error" });
   }
@@ -93,7 +88,7 @@ router.post(
       Title,
       Description,
       Category,
-      CreatedBy: req.user._id,
+      CreatedBy: req.user.name,
       BlogImageUrl: `BlogImages/${req.file.filename}`,
     });
     return res.status(201).json({
@@ -160,7 +155,7 @@ router.put(
 
       const blog = await Blog.findByIdAndUpdate(id, updateBlog, {
         new: true,
-      }).populate("CreatedBy", "name");
+      })
       console.log(blog);
       if (!blog) {
         return res.status(404).json({ message: "Blog not found" });
@@ -168,7 +163,7 @@ router.put(
       return res.status(200).json({
         success: true,
         blog: blog,
-        message: "Blog is created",
+        message: "Blog is UPDATED",
       });
     } catch (error) {
       res.status(500).json({ message: "Server Error" });
