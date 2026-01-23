@@ -33,17 +33,24 @@ router.get("/", authentication, async (req, res) => {
     }
 
     console.log("Filter being used:", filter);
-    const allblog = await Blog.find(filter)
+    const allblog = await Blog.find(filter);
 
     if (allblog.length === 0) {
       return res.status(200).json({
         success: true,
         blog: [],
-        message: "No blogs found"
+        message: "No blogs found",
       });
     }
 
-    res.status(200).json({ success: true, blog: allblog });
+    const blogsWithUrl = allblog.map((blog) => ({
+      ...blog._doc,
+      BlogImageUrl: `http://localhost:8000/BlogImages/${path.basename(
+        blog.BlogImageUrl
+      )}`,
+    }));
+
+    res.status(200).json({ success: true, blog: blogsWithUrl });
   } catch (error) {
     console.log("GET BLOG ERROR:", error);
     res.status(500).json({ message: error.message });
@@ -53,17 +60,24 @@ router.get("/", authentication, async (req, res) => {
 //Get for open specific blog
 router.get("/:id", authentication, async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id)
+    const blog = await Blog.findById(req.params.id);
 
     if (!blog) {
       return res.status(400).json({ message: "Blog not Found" });
     }
 
+    
+    const blogWithUrl = {
+      ...blog._doc,
+      BlogImageUrl: blog.BlogImageUrl
+        ? `http://localhost:8000/BlogImages/${path.basename(blog.BlogImageUrl)}`
+        : null,
+    };
+
     res.status(200).json({
       success: true,
-      blog: blog,
+      blog: blogWithUrl,
     });
-
   } catch (error) {
     res.status(500).json({ message: "get by id Server Error" });
   }
@@ -75,35 +89,31 @@ router.post(
   authentication,
   upload.single("BlogImageUrl"),
   async (req, res) => {
+    try {
+      if (!req.file)
+        return res.status(400).json({ message: "Image is required" });
 
-    try{
+      const { Title, Description, Category } = req.body;
 
-    if (!req.file) return res.status(400).json({ message: "Image is required" });
-
-    const { Title, Description, Category } = req.body;
-
-
-
-    const newblog = await Blog.create({
-      Title,
-      Description,
-      Category,
-      CreatedBy: req.user.name,
-      BlogImageUrl: `BlogImages/${req.file.filename}`,
-    });
-    return res.status(201).json({
-      success: true,
-      blog: newblog,
-      message: "Blog is made successfully",
-    });
-
-   }catch(error){
-    {
+      const newblog = await Blog.create({
+        Title,
+        Description,
+        Category,
+        CreatedBy: req.user.name,
+        BlogImageUrl: `http://localhost:8000/BlogImages/${req.file.filename}`,
+      });
+      return res.status(201).json({
+        success: true,
+        blog: newblog,
+        message: "Blog is made successfully",
+      });
+    } catch (error) {
+      {
         console.log("error is", error);
-        
-    res.status(500).json({ message: "blod create Server Error" });
-  }
-   }
+
+        res.status(500).json({ message: "blod create Server Error" });
+      }
+    }
   }
 );
 
@@ -149,13 +159,13 @@ router.put(
         updateBlog.Category = Category;
       }
       if (req.file) {
-        updateBlog.BlogImageUrl = `BlogImages/${req.file.filename}`;
+        updateBlog.BlogImageUrl =  `http://localhost:8000/BlogImages/${req.file.filename}`;
       }
       console.log(updateBlog);
 
       const blog = await Blog.findByIdAndUpdate(id, updateBlog, {
         new: true,
-      })
+      });
       console.log(blog);
       if (!blog) {
         return res.status(404).json({ message: "Blog not found" });

@@ -9,6 +9,46 @@ const optverification=require("../Model/OtpVerification")
 
 const route = express.Router();
 
+
+///////////// Otp function  ///////////////
+
+async function generateOtp(req,res){
+
+   try {
+
+    otp=Math.floor(1000+Math.random()*9000);
+
+    const salt=10;
+    const hashedOtp=await bcrypt.hash(otp,salt);
+
+
+    const newotpVerification=await new newotpVerification({
+
+    userId:_id,
+    otpCode:hashedOtp,
+    createdAt:Date.now(),
+    ExpiryDate:Date.now()*300000,
+
+    })
+
+
+
+    
+
+
+    
+  } catch (error) {
+
+    console.log("error")
+    
+  }
+
+
+}
+
+
+
+
 /////            LOGIN API         /////////
 route.post("/LogIn", async (req, res) => {
   try {
@@ -180,11 +220,40 @@ route.put("/profile", authentication, async (req, res) => {
 
 /////////////////// OTP verification /////////////////////
 
-route.put("",(req,res)=>{
+route.put("/verification",async (req,res)=>{
 
   try {
 
+    const {email,password}=req.body;
+
+   const user= User.findOne({email});
+
+   if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    
+
+
+
+
+
     otp=Math.floor(1000+Math.random()*9000);
+
+    const salt=10;
+    const hashedOtp=await bcrypt.hash(otp,salt);
+
+
+    const newotpVerification=await new newotpVerification({
+
+    userId:user._id,
+    otpCode:hashedOtp,
+    createdAt:Date.now(),
+    ExpiryDate:Date.now()*300000 ,
+
+    })
+
+    
 
 
     
