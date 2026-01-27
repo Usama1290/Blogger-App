@@ -1,9 +1,9 @@
 const express=require("express");
 const mongoose=require("mongoose");
 const path=require("path");
-const userRoutes=require("./Controller/user");
+const userRoutes=require("./Router/User");
 const cookieParser = require('cookie-parser');
-const BlogRoutes=require("./Controller/Blog");
+const BlogRoutes=require("./Router/Blog");
 const cors=require("cors")
 
 
@@ -28,7 +28,7 @@ app.use(cors())
 app.use(express.urlencoded({limit: '10mb',extended:true}));
 app.use(express.json({ limit: '10mb' }));
 app.use((req, res, next) => {
-  req.url = req.url.trim(); // remove trailing whitespace/newline
+  req.url = req.url.trim(); 
   next();
 });
 app.use(cookieParser());
