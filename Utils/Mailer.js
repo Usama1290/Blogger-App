@@ -4,11 +4,10 @@ const transporter = nodemailer.createTransport({
  host: "sandbox.smtp.mailtrap.io",
   port: 2525,
   auth: {
-    user: "6142ad02e92125",
-    pass: "4a2e0b925c0104",
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
   }
 });
-
 const sendOtpEmail = async (email, otp, name) => {
   try {
     await transporter.sendMail({       
@@ -19,7 +18,7 @@ const sendOtpEmail = async (email, otp, name) => {
         <h3>Hello ${name}</h3>
         <p>Your OTP is:</p>
         <h2>${otp}</h2>
-        <p>This OTP will expire in 5 minutes.</p>
+        <p>This OTP will expire in 1 hour.</p>
       `
     });
     console.log("Email sent successfully!");

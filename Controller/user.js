@@ -114,7 +114,14 @@ async function handleUserSignUp (req, res){
 
     res.status(200).json({
       success: true,
-      User: user,
+      User: {
+        name: user.name,
+        email: user.email,
+        mobileNo: user.mobileNo,
+        dob: user.dob,
+        password:user.password,
+        confirmPassword:user.password,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: "profile get Server Error" });
@@ -123,10 +130,15 @@ async function handleUserSignUp (req, res){
 
 async function updateUserProfile (req, res) {
   try {
-    const { name, email, mobileNo, dob, password } = req.body;
+    const { name, email, mobileNo, dob, password,confirmPassword  } = req.body;
     console.log(req.body);
 
+     if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
     const updateData = {};
+    
     if (name) {
       updateData.name = name;
     }
@@ -141,14 +153,14 @@ async function updateUserProfile (req, res) {
     }
 
     if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      updateData.password = hashedPassword;
+      // const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = password;
     }
 
     const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, {
       new: true,
       runValidators: true,
-    }).select("-password");
+    });
 
     console.log(updatedUser);
 

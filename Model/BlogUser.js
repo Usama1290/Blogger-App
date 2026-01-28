@@ -31,16 +31,16 @@ const BlogUserSchema = new mongoose.Schema(
   
 );
 
-BlogUserSchema.pre("save", async function () {
-if (!this.isModified("password")) return ;
+// BlogUserSchema.pre("save", async function () {
+// if (!this.isModified("password")) return ;
 
 
-const saltRounds = 10;
-this.password = await bcrypt.hash(this.password, saltRounds);
+// const saltRounds = 10;
+// this.password = await bcrypt.hash(this.password, saltRounds);
 
 
-;
-});
+
+// });
 
 
 BlogUserSchema.statics.matchedPassword = async function (email, password) {
@@ -50,7 +50,9 @@ BlogUserSchema.statics.matchedPassword = async function (email, password) {
   return null;
   }
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  // const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch=password === user.password;
+  
   if (!isMatch){ 
     return null;
   }

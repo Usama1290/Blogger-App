@@ -1,10 +1,17 @@
+
+//const dotenv=require("dotenv").config();
+
 const express=require("express");
 const mongoose=require("mongoose");
 const path=require("path");
 const userRoutes=require("./Router/User");
 const cookieParser = require('cookie-parser');
 const BlogRoutes=require("./Router/Blog");
-const cors=require("cors")
+const OtpRoutes=require("./Router/Otp");
+
+
+
+const cors=require("cors");
 
 
 
@@ -37,6 +44,7 @@ app.use('/BlogImages', express.static(path.join(__dirname, 'BlogImages')));
 
 app.use("/user",userRoutes)
 app.use("/blog",BlogRoutes)
+//app.use("/otp",OtpRoutes)
 
 
 app.listen(8000,()=>{

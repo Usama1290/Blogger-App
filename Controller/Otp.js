@@ -10,7 +10,7 @@ const sendOtpEmail = require("../Utils/Mailer");
 
 
 
-/////////////////// OTP verification /////////////////////
+////////////////// OTP verification /////////////////////
 
 async function handleVerifyOtp (req, res){
   try {
@@ -133,12 +133,12 @@ async function handleResendOtp(req,res){
       ExpiryDate: new Date(Date.now() + 60 * 60 * 1000),
     });
    
-  await sendOtpEmail(newUser.email, otp, newUser.name);
+  await sendOtpEmail(user.email, newOtp, user.name);
 
   return res.status(200).json({
       success: true,
       message: "Otp resend",
-      userId: newUser._id,
+      userId: user._id,
     });
 
 
