@@ -78,8 +78,8 @@ async function handleUserSignUp (req, res){
       mobileNo,
       dob,
       password,
-       passwordResetToken: undefined,   
-       passwordTokenExpiry: undefined,
+      passwordResetToken: undefined,   
+      passwordTokenExpiry: undefined,
     });
 
 
@@ -203,10 +203,8 @@ try{
     
     await user.save({ validateBeforeSave: false });
 
-    const host = req.get("host"); 
-    const protocol = req.protocol; 
-
-    const resetUrl = `${protocol}://${host}/user/resetPassword/${resetToken}`;
+    const frontendUrl = "http://localhost:4200";  
+    const resetUrl = `${frontendUrl}/user/resetPassword/${resetToken}`;
     await sendEmailPassword({
       email: user.email,
       name: user.name,
