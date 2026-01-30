@@ -5,7 +5,8 @@ const crypto = require("crypto");
 const JWT_SECRET = "MySecretKey";
 const jwt = require("jsonwebtoken");
 const { authentication } = require("../Middleware/middleware");
-const OTP = require("../Model/OtpVerification");
+
+const {sendEmailPassword} = require("../Utils/Mailer");
 
 const sendOtpEmail = require("../Utils/Mailer");
 
@@ -77,6 +78,8 @@ async function handleUserSignUp (req, res){
       mobileNo,
       dob,
       password,
+       passwordResetToken: undefined,   
+       passwordTokenExpiry: undefined,
     });
 
 
@@ -130,19 +133,29 @@ async function handleUserSignUp (req, res){
 
 async function updateUserProfile (req, res) {
   try {
-    const { name, email, mobileNo, dob, password,confirmPassword  } = req.body;
+    const { name, email, mobileNo, dob,} = req.body;
     console.log(req.body);
 
-     if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
+
+    if (name !== undefined && name.trim() === "") {
+      return res.status(400).json({ message: "Name cannot be empty" });
     }
+
+    if (mobileNo !== undefined && mobileNo.trim() === "") {
+      return res.status(400).json({ message: "Mobile number cannot be empty" });
+    }
+
+    if (dob !== undefined && dob.trim() === "") {
+      return res.status(400).json({ message: "Date of birth cannot be empty" });
+    }
+
 
     const updateData = {};
     
     if (name) {
       updateData.name = name;
     }
-    if (email) {
+     if (email) {
       updateData.email = email;
     }
     if (dob) {
@@ -152,12 +165,14 @@ async function updateUserProfile (req, res) {
       updateData.mobileNo = mobileNo;
     }
 
-    if (password) {
-      // const hashedPassword = await bcrypt.hash(password, 10);
-      updateData.password = password;
-    }
+    // if (password) {
+    //   // const hashedPassword = await bcrypt.hash(password, 10);
+    //   updateData.password = password;
+    // }
 
-    const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, {
+    
+
+    const updatedUser = await User.findByIdAndUpdate(req.user._id,  {$set: updateData }, {
       new: true,
       runValidators: true,
     });
@@ -170,4 +185,80 @@ async function updateUserProfile (req, res) {
   }
 };
 
-module.exports = {handleUserLogin,handleUserSignUp,updateUserProfile,getUserProfile};
+
+async function handleResetPassword(req,res){
+try{
+  const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+  if (!user) {
+      return res.status(400).json({ message: "User not Found" });
+  }
+
+  const resetToken=await User.createResetToken()
+    
+    await user.save({ validateBeforeSave: false });
+
+    const host = req.get("host"); 
+    const protocol = req.protocol; 
+
+    const resetUrl = `${protocol}://${host}/user/resetPassword/${resetToken}`;
+    await sendEmailPassword({
+      email: user.email,
+      name: user.name,
+      resetUrl: resetUrl,
+    });
+
+  return res.status(200).json({message:"email is send to reset password",Token:resetToken});
+
+
+}catch(error){
+    console.log(error)
+    res.status(500).json({ message: "password reset error" });
+  }
+     
+
+
+}
+
+
+async function ResetPasswordWithId(req,res){
+
+  try{
+
+  const {password,confirmPassword}=req.body;
+
+  const token=req.params.id;
+  const user=await User.findOne({passwordResetToken:token,passwordTokenExpiry:{$gt:Date.now()}})
+  
+  if (!user) {
+      return res.status(400).json({ message: "User not Found" });
+  }
+
+  if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    //const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordTokenExpiry = undefined;
+
+   await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json({message:"password is reset"});
+  
+  }catch(error){
+
+    console.log(error)
+    res.status(500).json({ message: "password reset error" });
+  }
+}
+
+module.exports = {handleUserLogin,handleUserSignUp,updateUserProfile,getUserProfile,
+  ResetPasswordWithId,handleResetPassword};

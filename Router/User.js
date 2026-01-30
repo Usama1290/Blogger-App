@@ -1,5 +1,6 @@
 const express = require("express");
-const {handleUserSignUp,handleUserLogin,getUserProfile,updateUserProfile}=require("../Controller/user");
+const {handleUserSignUp,handleUserLogin,
+    getUserProfile,updateUserProfile,handleResetPassword,ResetPasswordWithId}=require("../Controller/user");
 const { authentication } = require("../Middleware/middleware");
 
 
@@ -17,6 +18,9 @@ router.post("/LogIn",handleUserLogin);
 router.get("/profile",authentication,getUserProfile);
 router.put("/profile",authentication,updateUserProfile);
 
+/////////////////  Forget Password  //////////////////
 
+router.post("/resetPassword",handleResetPassword);
+router.post("/resetPassword/:id",ResetPasswordWithId);
 
 module.exports=router

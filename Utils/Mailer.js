@@ -27,4 +27,28 @@ const sendOtpEmail = async (email, otp, name) => {
   }
 };
 
-module.exports = sendOtpEmail;
+const sendEmailPassword = async ({ email, name, resetUrl }) => {
+  try {
+
+    await transporter.sendMail({
+      from: "sandbox.smtp.mailtrap.io",
+      to: email,
+      subject: "Reset Your Password",
+      html: `
+        <h3>Hello ${name},</h3>
+        <p>You requested to reset your password.</p>
+        <p>Click the link below to reset it:</p>
+        <a href="${resetUrl}" target="_blank">${resetUrl}</a>
+        <p>This link will expire in 15 minutes.</p>
+        <p>If you did not request this, please ignore this email.</p>
+      `,
+    });
+
+    console.log("Reset password email sent successfully!");
+  } catch (error) {
+    console.error("Error sending reset password email:", error);
+  }
+};
+
+
+module.exports = {sendOtpEmail,sendEmailPassword};

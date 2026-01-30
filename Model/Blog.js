@@ -9,6 +9,7 @@ const blogSchema=new mongoose.Schema({
         require:true,
     },
     BlogImageUrl:{
+
         type:String,
         require:false,
 
@@ -24,7 +25,6 @@ const blogSchema=new mongoose.Schema({
         enum: ['CARS', 'MOVIES', 'SPORTS', 'FASHION','NEWS','PETS'], 
         default: 'Other',
         require:true,
-
 
     },
     CreatedBy:{
