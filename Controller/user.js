@@ -202,9 +202,8 @@ try{
   const resetToken=await User.createResetToken()
     
     await user.save({ validateBeforeSave: false });
-
-    const frontendUrl = "http://localhost:4200";  
-    const resetUrl = `${frontendUrl}/user/resetPassword/${resetToken}`;
+  
+    const resetUrl = `http://localhost:4200/reset-password/${resetToken}`;
     await sendEmailPassword({
       email: user.email,
       name: user.name,
