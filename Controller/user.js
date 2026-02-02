@@ -199,7 +199,7 @@ try{
       return res.status(400).json({ message: "User not Found" });
   }
 
-  const resetToken=await User.createResetToken()
+    const resetToken=await user.createResetToken()
     
     await user.save({ validateBeforeSave: false });
   
@@ -229,6 +229,10 @@ async function ResetPasswordWithId(req,res){
 
   const {password,confirmPassword}=req.body;
 
+  if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
   const token=req.params.id;
   const user=await User.findOne({passwordResetToken:token,passwordTokenExpiry:{$gt:Date.now()}})
   
@@ -236,9 +240,7 @@ async function ResetPasswordWithId(req,res){
       return res.status(400).json({ message: "User not Found" });
   }
 
-  if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Passwords do not match" });
-    }
+  
 
     //const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -248,7 +250,7 @@ async function ResetPasswordWithId(req,res){
 
    await user.save({ validateBeforeSave: false });
 
-    return res.status(200).json({message:"password is reset"});
+   return res.status(200).json({success:"true" ,message:"password is reset"});
   
   }catch(error){
 

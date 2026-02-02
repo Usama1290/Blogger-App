@@ -58,7 +58,7 @@ BlogUserSchema.statics.matchedPassword = async function (email, password) {
   return user;
 };
 
-BlogUserSchema.statics.createResetToken = async function () {
+BlogUserSchema.methods.createResetToken = async function () {
 
   const resetToken = await crypto.randomBytes(32).toString("hex");
   console.log(resetToken);
