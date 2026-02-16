@@ -1,23 +1,26 @@
-const express = require("express");
+
 const User = require("../Model/BlogUser");
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
 const JWT_SECRET = "MySecretKey";
 const jwt = require("jsonwebtoken");
-const { authentication } = require("../Middleware/middleware");
+
 
 const {sendEmailPassword} = require("../Utils/Mailer");
 
-const sendOtpEmail = require("../Utils/Mailer");
 
-const route = express.Router();
+
 
 
 /////            LOGIN API         /////////
  async function handleUserLogin (req, res) {
   try {
-    console.log(req.body);
+    
     const { email, password } = req.body;
+
+    if ( !email || !password) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
 
     const  dbUser = await User.matchedPassword(email, password);
 
@@ -59,7 +62,7 @@ async function handleUserSignUp (req, res){
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    console.log(req.body);
+    
 
     if (!name || !email || !mobileNo || !password) {
       return res.status(400).json({
@@ -109,10 +112,10 @@ async function handleUserSignUp (req, res){
   try {
     const user = await User.findById(req.user._id);
 
-    console.log(user);
+    
 
     if (!user) {
-      return res.status(400).json({ message: "User not Found" });
+      return res.status(404).json({ message: "User not Found" });
     }
 
     res.status(200).json({
@@ -132,9 +135,10 @@ async function handleUserSignUp (req, res){
 };
 
 async function updateUserProfile (req, res) {
+  
   try {
     const { name, email, mobileNo, dob,} = req.body;
-    console.log(req.body);
+    
 
 
     if (name !== undefined && name.trim() === "") {
@@ -177,7 +181,7 @@ async function updateUserProfile (req, res) {
       runValidators: true,
     });
 
-    console.log(updatedUser);
+    
 
     res.json({ message: "Profile updated successfully", User: updatedUser });
   } catch (error) {
@@ -187,6 +191,7 @@ async function updateUserProfile (req, res) {
 
 
 async function handleResetPassword(req,res){
+
 try{
   const { email } = req.body;
 
@@ -196,7 +201,7 @@ try{
 
     const user = await User.findOne({ email });
   if (!user) {
-      return res.status(400).json({ message: "User not Found" });
+      return res.status(404).json({ message: "User not Found" });
   }
 
     const resetToken=await user.createResetToken()
@@ -237,7 +242,7 @@ async function ResetPasswordWithId(req,res){
   const user=await User.findOne({passwordResetToken:token,passwordTokenExpiry:{$gt:Date.now()}})
   
   if (!user) {
-      return res.status(400).json({ message: "User not Found" });
+      return res.status(404).json({ message: "User not Found" });
   }
 
   

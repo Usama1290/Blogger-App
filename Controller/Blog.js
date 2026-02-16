@@ -1,4 +1,4 @@
-const { isErrored } = require("stream");
+
 const Blog = require("../Model/Blog");
 const path = require("path");
 const fs = require("fs/promises");
@@ -6,18 +6,33 @@ const fs = require("fs/promises");
 ////////////////////      get all blog or blog by category  /////////////////////
 async function handleGetBlog(req, res) {
   try {
-    console.log("get blog hit");
-    const Category = req.query.Category;
-    console.log(Category);
+   
+    const category = req.query.Category;
+    const search=req.query.search||""
+    const page=parseInt(req.query.page)||1
+    const limit=parseInt(req.query.limit)||5
 
-    const filter = {};
 
-    if (Category) {
-      filter.Category = Category.trim();
+    const skip=(page-1)*limit;
+
+    // const filter = {"$or":[
+
+    //   {Category:{$regex:search, $options: "i"}}
+    // ]
+
+    // };
+
+    const filter={}
+
+    if (search) {
+   filter.Category = { $regex: search, $options: "i" };
     }
-
-    console.log("Filter being used:", filter);
-    const allblog = await Blog.find(filter);
+    if (category) {
+      filter.Category = category.trim()
+    }
+    const total=await Blog.countDocuments(filter)
+  
+    const allblog = await Blog.find(filter).skip(skip).limit(limit);
 
     if (allblog.length === 0) {
       return res.status(200).json({
@@ -34,7 +49,7 @@ async function handleGetBlog(req, res) {
       )}`,
     }));
 
-    res.status(200).json({ success: true, blog: blogsWithUrl });
+    res.status(200).json({ success: true, blog: blogsWithUrl ,total,page,limit,totalPage:Math.ceil(total/limit)});
   } catch (error) {
     console.log("GET BLOG ERROR:", error);
     res.status(500).json({ message: error.message });
@@ -134,7 +149,7 @@ async function handleDeleteBlog(req, res) {
 async function handleUpdateBlog(req, res) {
   try {
     const id = req.params.id;
-    console.log(id);
+    
 
     const { Title, Description, Category } = req.body;
     const updateBlog = {};
@@ -161,7 +176,7 @@ async function handleUpdateBlog(req, res) {
         "BlogImages",
         path.basename(oldBlog.BlogImageUrl),
       );
-      console.log(imagePath);
+      
       try {
         await fs.unlink(imagePath);
         console.log("Image deleted:", path.basename(oldBlog.BlogImageUrl));
@@ -171,12 +186,12 @@ async function handleUpdateBlog(req, res) {
 
       updateBlog.BlogImageUrl = `http://localhost:8000/BlogImages/${req.file.filename}`;
     }
-    console.log(updateBlog);
+    
 
     const blog = await Blog.findByIdAndUpdate(id, updateBlog, {
       new: true,
     });
-    console.log(blog);
+    
     if (!blog) {
       return res.status(404).json({ message: "Blog not found" });
     }
